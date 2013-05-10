@@ -1,0 +1,31 @@
+// The following two lines import the default Sencha Touch theme. If you are building
+// a new theme, remove them and the add your own CSS on top of the base CSS (which
+// is already included in your app.json file).
+@import 'sencha-touch/default';
+@import 'sencha-touch/default/all';
+
+// Custom code goes here..
+
+// Examples of using the icon mixin:
+// @include icon('user');
+
+@include icon('chart');
+
+@import 'stylesheets/accordionlist';
+@include accordionlist;
+
+.PL-view {
+    .x-accordion-list-header {
+        background-color: #157fcc;
+        border-top: 1px solid #157fcc;
+        color: #fff;
+
+        .down {
+            border-top-color: #fff;
+        }
+
+        .right {
+            border-left-color: #fff;
+        }
+    }
+}
