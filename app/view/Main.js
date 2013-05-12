@@ -38,6 +38,12 @@ Ext.define('AccordionListExample.view.Main',{
                     type: 'vbox'
                 },
                 scrollable: 'vertical',
+                listeners: {
+                    'changeheight': function() {
+                        this.element.redraw();
+                    },
+                    delegate: 'accordionlist'
+                },
                 items: [
                     {
                         xtype: 'container',
