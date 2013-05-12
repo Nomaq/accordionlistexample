@@ -188,8 +188,17 @@ Ext.define('Ext.ux.AccordionList', {
      */
     doInitialize: function() {
         var me = this;
+
         if (me.getDefaultExpanded()) {
             me.doAllExpand();
+        }
+
+        if (me.getListScrollable() === false) {
+            me.updateListScrollable(me.getListScrollable());
+            me.on({
+                'painted': me.onPainted,
+                scope: me
+            });
         }
     },
 
@@ -230,7 +239,8 @@ Ext.define('Ext.ux.AccordionList', {
 
             list = Ext.create('Ext.dataview.List', {
                 itemTpl: itemTpl,
-                scrollToTopOnRefresh: false
+                scrollToTopOnRefresh: false,
+                scrollable: me.getListScrollable()
             });
 
             if (me.getUseSelectedHighlights() === false) {
@@ -241,7 +251,6 @@ Ext.define('Ext.ux.AccordionList', {
             list.on('refresh', me.onListRefresh, me);
 
             me.setList(list);
-            list.setScrollable(me.getListScrollable());
             me.add(list);
         }
 
@@ -277,6 +286,7 @@ Ext.define('Ext.ux.AccordionList', {
           var list = this.getList();
           if (list) {
               list.setScrollable(newListScrollable);
+              list.getScrollable().getScroller().setDisabled(!newListScrollable);
           }
      },
 
@@ -364,9 +374,42 @@ Ext.define('Ext.ux.AccordionList', {
         for (i = 0; i < ln; i++) {
             item = items[i];
             record = item.getRecord();
+            if (record === null) {
+                continue;
+            }
             isLeaf = record.get('leaf');
             item.removeCls(isLeaf ? headerCls : contentCls);
             item.addCls(isLeaf ? contentCls : headerCls);
+        }
+
+        if (me.getListScrollable() === false) {
+            me.adjustHeight(list);
+        }
+    },
+
+    /**
+     * @private
+     * @param  {Ext.dataview.List} list
+     */
+    adjustHeight: function(list) {
+        var me = this,
+            items = list.listItems,
+            ln = items.length,
+            height = 0,
+            i, item, record;
+
+        for (i = 0; i < ln; i++) {
+            item = items[i];
+            record = item.getRecord();
+            if (record === null) {
+                continue;
+            }
+            height = height + item.element.getHeight();
+        }
+
+        if (height !== 0) {
+            me.setHeight(height);
+            me.fireEvent('changeheight');
         }
     },
 
@@ -399,6 +442,15 @@ Ext.define('Ext.ux.AccordionList', {
                 node.expand();
             }
         }
+    },
+
+    /**
+     * @protected
+     */
+    onPainted: function() {
+        var me = this,
+            parentHeight = me.parent.element.getHeight();
+        me.setHeight(parentHeight);
     },
 
     /**
